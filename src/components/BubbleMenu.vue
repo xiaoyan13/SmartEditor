@@ -73,6 +73,9 @@ import { BubbleMenu } from '@tiptap/vue-3'
 import { computed } from 'vue';
 import { ElButton, ElDivider, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
 import { ElMessage, ElLoading } from "element-plus";
+import { useUserStore } from '@/stores/userStore';
+
+const userStore = useUserStore()
 
 const props = defineProps({
   editor: Object
@@ -111,6 +114,7 @@ const AIfunc = async (command) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
       },
       body: JSON.stringify({ text: selectedText, command: command }),
     });

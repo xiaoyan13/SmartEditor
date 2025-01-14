@@ -223,11 +223,27 @@ const handleDocClick = (id) => {
   router.push({ name: 'edit', params: { id: id } });
   loadDocuments();
 };
+
+const isCursorAtEnd = () => {
+  const cursorPosition = editor.value.state.selection.$head.pos; // 获取光标当前位置
+  const docEndPosition = editor.value.state.doc.content.size;   // 获取文档末尾位置
+  return cursorPosition === docEndPosition - 1;        // 判断是否在文档末尾
+}
+
 // 文心助手
 const InsertErnie = (prompt) => {
-  editor.value.chain().focus().insertContent(`<vue-component message="${prompt}" />`).run();
-  editor.value.chain().blur().run();
+  if (isCursorAtEnd()) {
+    editor.value.chain()
+    .focus()
+    .insertContent(`<vue-component message="${prompt}" />`)
+    .setTextSelection(editor.value.state.selection.$anchor.pos + 2) // 将光标向后移动一位
+    .insertContent('<p></p>')
+    .run();
+  }else {
+    editor.value.chain().focus().insertContent(`<vue-component message="${prompt}" />`).run();
+  }
 }
+
 // 排版
 const setTypograph = async (item) => {
   const loadingInstance = ElLoading.service({

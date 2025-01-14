@@ -56,9 +56,9 @@
     </el-aside>
     <el-container>
       <el-header class="header">
-        <a href="https://github.com/electronic-pig/SmartEditor" target="_blank" style="text-decoration: none; ">
+        <!-- <a href="https://github.com/electronic-pig/SmartEditor" target="_blank" style="text-decoration: none; ">
           <i style="font-size: 4vh; color: #555" class="ri-github-fill"></i>
-        </a>
+        </a> -->
         <el-autocomplete v-model="search" :fetch-suggestions="querySearchAsync" :trigger-on-focus="false"
           value-key="title" @select="handleSelect" placeholder="通过文档名搜索文档" clearable
           style="width: 40vw;margin-left: 15vw">
@@ -79,6 +79,10 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item command="change_prompt">
+                <el-icon>
+                  <Setting />
+                </el-icon>修改配置</el-dropdown-item>
               <el-dropdown-item command="reset_password">
                 <el-icon>
                   <EditPen />
@@ -98,6 +102,7 @@
           </transition>
         </router-view>
         <ResetPassword :signal="toggle" />
+        <Settings :signal="setting_visible" />
       </el-main>
     </el-container>
   </el-container>
@@ -108,6 +113,7 @@ import { ref } from "vue";
 import router from "../router";
 import { useUserStore } from "../stores/userStore.js";
 import ResetPassword from "../components/ResetPassword.vue";
+import Settings from "@/components/Settings.vue";
 import request from "../utils/request.js";
 import { ElMessage, ElLoading } from "element-plus";
 import mammoth from 'mammoth';
@@ -130,6 +136,10 @@ const tableData = ref([
   { Type: '客服', super: '7*24小时', gold: '7*24小时', normal: '7*24小时' },
 ]);
 
+
+const setting_visible = ref(false)
+
+
 const handleCommand = (command) => {
   if (command === "logout") {
     userStore.removeToken();
@@ -142,6 +152,9 @@ const handleCommand = (command) => {
   }
   if (command === "reset_password") {
     toggle.value = !toggle.value;
+  }
+  if (command === "change_prompt") {
+    setting_visible.value = !setting_visible.value;
   }
 };
 // 文档查询
@@ -319,7 +332,7 @@ const setCell = ({ row, column, rowIndex, columnIndex }) => {
   margin-left: 1vw;
   color: var(--el-color-primary);
   cursor: pointer;
-  font-size: 2.5vh;
+  font-size: 2.3vh;
 }
 
 .router-link {

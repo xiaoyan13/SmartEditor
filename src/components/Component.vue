@@ -48,6 +48,7 @@ const send = async () => {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
 			},
 			body: JSON.stringify({ command: '', text: '', prompt: prompt.value, tone: tone.value }),
 		});

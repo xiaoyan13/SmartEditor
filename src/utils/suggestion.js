@@ -23,6 +23,7 @@ export default {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
+        				'Authorization': `Bearer ${userStore.token}`
 							},
 							body: JSON.stringify({ text: editor.getHTML(), command: '内容简化' }),
 						});
@@ -61,6 +62,7 @@ export default {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
+        				'Authorization': `Bearer ${userStore.token}`
 							},
 							body: JSON.stringify({ text: editor.getHTML(), command: '全文总结' }),
 						});
@@ -99,6 +101,7 @@ export default {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
+        				'Authorization': `Bearer ${userStore.token}`
 							},
 							body: JSON.stringify({ text: editor.getHTML(), command: '重点提取' }),
 						});
@@ -137,6 +140,7 @@ export default {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json',
+        				'Authorization': `Bearer ${userStore.token}`
 							},
 							body: JSON.stringify({ text: editor.getHTML(), command: '全文翻译' }),
 						});

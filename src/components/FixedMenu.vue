@@ -293,6 +293,7 @@ const AIfunc = async (command) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
       },
       body: JSON.stringify({ text: selectedText, command: command }),
     });
