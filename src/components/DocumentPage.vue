@@ -6,9 +6,7 @@
         <img src="../assets/images/doc.png" alt="Document" class="document-logo">
         <div class="document-title">{{ doc.title }}</div>
         <el-dropdown class="document-dropdown">
-          <el-icon :size="18">
-            <Setting />
-          </el-icon>
+            <i class="ri-arrow-down-s-line"></i>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="openInNewTab(doc.id)">新标签打开</el-dropdown-item>
@@ -153,6 +151,7 @@ onMounted(loadDocuments);
   top: 0.5vh;
   right: 0.5vw;
   visibility: hidden;
+  font-size: 20px;
 }
 
 .document-card:hover .document-dropdown {

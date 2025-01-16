@@ -25,6 +25,12 @@
           &nbsp;&nbsp;
           我的模板
         </router-link>
+        <router-link to="/dashboard/ArticleSetting" class="link">
+          &nbsp;&nbsp;&nbsp;
+          <i class="ri-file-settings-line"></i>
+          &nbsp;&nbsp;
+          整文生成配置
+        </router-link>
         <router-link to="/dashboard/StarPage" class="link">
           &nbsp;&nbsp;&nbsp;
           <i class="ri-star-line"></i>

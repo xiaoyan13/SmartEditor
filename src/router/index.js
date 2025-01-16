@@ -41,6 +41,10 @@ const router = createRouter({
           component: () => import("../components/DocumentPage.vue"),
         },
         {
+          path: "ArticleSetting",
+          component: () => import("../components/ArticleSetting.vue"),
+        },
+        {
           path: "TemplateRepo",
           component: () => import("../components/TemplateRepo.vue"),
         },

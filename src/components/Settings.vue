@@ -19,20 +19,18 @@ const tips = ref([])
 // validate with debounce
 let timer = null;
 const validate = (str, pos) => {
-    console.log('here')
     if (timer) clearTimeout(timer);
     // validate
     timer = setTimeout(() => {
         const regex = /\{text\}/;
         if (regex.test(str) === false) {
-            console.log('here')
             tips.value[pos] = true
         }else {
             tips.value[pos] = false
         }
     }, 300)
     // use a macro task here, next time `validate` func be called,
-    // the `timer` will be true, then be cleared and retimingjjjjjjj.
+    // the `timer` will be true, then be cleared and retime.
 } 
 
 const loading = ref(false);
@@ -63,7 +61,6 @@ const init = async () => {
   try {
     // get prompts
     const resp = await request.get('/prompt/user')
-    console.log(resp)
     if (resp.code != 200) {
         ElMessage.error('prompts获取失败!')
     }else {
@@ -86,9 +83,9 @@ init()
         </template>
         <el-scrollbar height="60vh">
              <div>
-                <h2>Prompt 配置</h2>
+                <h2>润色 Prompt 配置</h2>
                 <i class="ri-questionnaire-line"></i>
-                tip: 修改完毕后点击确认按钮，以更新修改后的 prompts。
+                <span style="font-weight: 800; font-size: medium;"> tips: 修改完毕后，请点击确认按钮。</span>
                 <hr>
                 <template v-for="(p, index) of prompts">
                     <div class="prompt" style="position: relative">
@@ -113,6 +110,12 @@ init()
              </div>
         </el-scrollbar>
         <template #footer>
+            <el-button 
+            type="primary"
+            @click="show = false"
+            >
+                取消
+            </el-button>
             <el-button 
             type="primary" 
             :loading-icon="Eleme" 
