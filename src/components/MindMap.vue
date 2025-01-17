@@ -52,8 +52,7 @@ const initJsMind = () => {
 
   const mind = {
     "meta": {
-      "name": "妙笔mindMap",
-      "author": "2234333815@qq.com",
+      "name": "mindMap",
       "version": "0.1"
     },
     "format": "node_array",

@@ -198,16 +198,6 @@ const loadDocuments = async () => {
     response = await request.get("/document/" + router.currentRoute.value.params.id);
     if (response.code == 200) {
       editor.value.commands.setContent(response.document.content);
-      if (response.document.user_id == 1) {
-        editor.value.setEditable(false);
-        //禁用编辑按钮
-        document.querySelectorAll('button').forEach(item => {
-          if (!item.classList.contains('exclude')) {
-            item.disabled = true;
-          }
-        });
-        ElMessage.info("只读模式");
-      }
       title.value = response.document.title;
     } else {
       ElMessage.error(response.message);

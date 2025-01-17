@@ -4,7 +4,7 @@
       <div class="image">
         <img style="width: 160px;" alt="logo" src="../assets/images/white_bg_logo.png" />
       </div>
-      <p class="logo">妙笔</p>
+      <p class="logo">iflower</p>
       <el-form class="form" :model="registerForm" :rules="rules" ref="registerFormRef">
         <el-form-item prop="username">
           <el-input v-model="registerForm.username" autocomplete="off" placeholder="用户名"><template #prepend>

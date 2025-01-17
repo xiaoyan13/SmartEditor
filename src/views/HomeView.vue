@@ -3,21 +3,18 @@
     <div class="header">
       <div class="logo">
         <img style="height: 6vh;" alt="logo" src="../assets/images/white_bg_logo.png" />
-        <span href="#" class="name">妙笔 · 智能编辑器</span>
+        <span href="#" class="name">iflower · 智能编辑器</span>
       </div>
       <ul class="links">
         <li style="color: #6c63ff;cursor: pointer;">首页</li>
-        <li><a href="https://aistudio.baidu.com/competition/detail/1182/0/introduction" target="_blank">飞浆AI Studio</a>
-        </li>
-        <li><a href="https://www.cnsoftbei.com/content-3-1018-1.html" target="_blank">中国软件杯</a></li>
-        <li><a href="https://github.com/electronic-pig/SmartEditor" target="_blank">Github</a></li>
+        <li><a href="https://github.com/xiaoyan13/SmartEditor_backend" target="_blank">Github</a></li>
         <router-link to="/login" class="toLogin">登录/注册</router-link>
       </ul>
     </div>
     <el-divider style="margin: 0;"></el-divider>
     <div class="content">
       <div class="info">
-        <span class="clip">妙笔</span>
+        <span class="clip">iflower</span>
         <h1>一个基于大小模型的</h1>
         <h1>在线文档富文本编辑器</h1>
         <p>在线编辑、AI辅助、文档管理</p>
@@ -43,7 +40,7 @@
       </div>
     </div>
     <div class="footer">
-      <p style="font-size: 2vh;">Copyright © 2024 妙笔.</p>
+      <p style="font-size: 2vh;">Copyright © 2024 iflower.</p>
     </div>
   </div>
 </template>

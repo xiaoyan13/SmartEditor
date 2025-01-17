@@ -44,7 +44,7 @@ watch(() => {
 
 
 <template>
-    <el-collapse-item  :name="index">
+    <el-collapse-item  :name="index.toString()">
         <template #title>
             <div class="head">
                 <h2>{{ item.title }}</h2>

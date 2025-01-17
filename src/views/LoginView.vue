@@ -4,7 +4,7 @@
       <div class="image">
         <img style="width: 10vw;" alt="logo" src="../assets/images/white_bg_logo.png" />
       </div>
-      <p class="logo">妙笔</p>
+      <p class="logo">iflower</p>
       <el-form class="form" :model="loginForm" :rules="rules" ref="loginFormRef">
         <el-form-item prop="email">
           <el-input v-model="loginForm.email" autocomplete="off" placeholder="邮箱"><template #prepend>

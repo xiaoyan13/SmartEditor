@@ -31,8 +31,8 @@
       </el-button>
     </el-tooltip>
   </div>
-  <div style="font-size: 20px;">
-    <input type="text" :value="title" @input="updateTitle" style="background: none; border: 0px; outline: none" />
+  <div class="edit-title">
+    <input class="edit-input" type="text" :value="title" @input="updateTitle" />
   </div>
   <div class="right-group" style="margin-right: 1vw;">
     <el-tooltip content="文心助手" :hide-after="0">
@@ -286,5 +286,19 @@ const copyToClipboard = async () => {
   border-radius: 5px;
   cursor: pointer;
   background-color: transparent;
+}
+
+.edit-title {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+
+  .edit-input {
+    background: none; 
+    border: 0px; 
+    outline: none;
+    font-weight: 900;
+    text-align: center
+  }
 }
 </style>

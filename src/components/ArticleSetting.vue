@@ -23,10 +23,11 @@ const userStore = useUserStore()
     // }
 }
 */
+const activeCollapseName = ref('') // 控制当前哪个面板展开
+
 const data = ref([]) // data will be rendered in HTML
 const filesMap = new Map() // used for mapping data's position in arr to its corresponding NEW files.
 const tags = ref([]) // used for mapping data's position to its editing state: NEED_SAVE | ACTIVE 
-
 const changeTag = (i, val) => {
     tags.value[i] = val;
 }
@@ -75,7 +76,7 @@ const configChange = async (i) => {
             if (resp.ok) {
                 ElMessage.success('新增配置成功！')
                 dt.id = responseJson.id;
-                tags.value[i] = 'ACTIVE'
+                tags.value[i] = 'ACTIVE';
             }else {
                 ElMessage.error(responseJson.message)
             }
@@ -133,6 +134,7 @@ const dialogHandleConfirm = () => {
             deleteloading: false, // used by html control
         })
         tags.value.push('NEED_SAVE')
+        activeCollapseName.value = (data.value.length - 1).toString();
 
         newTitle.value = '';
         dialogVisible.value = false;
@@ -170,13 +172,12 @@ const init = async () => {
     NProgress.done()
 }
 init()
-
 </script>
 
 <template>
     <div class="container">
         <h2 class="title">整文生成配置</h2>
-        <el-collapse accordion>
+        <el-collapse accordion  v-model="activeCollapseName">
             <template v-for="(item, index) of data">
                 <CollapseItem
                  :item
