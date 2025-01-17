@@ -191,7 +191,7 @@ init()
             </template>
         </el-collapse>
         <div class="add-config-button">
-            <el-button @click="dialogVisible = true" color="blueviolet">
+            <el-button @click="dialogVisible = true" color="#6c63ff">
                 添加配置
             </el-button>
         </div>

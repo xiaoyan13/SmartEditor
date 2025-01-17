@@ -103,7 +103,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { ElButton, ElTooltip, ElDivider, ElIcon, ElDialog, ElDrawer } from 'element-plus';
 import { ElMessage, genFileId, ElLoading, ElUpload } from "element-plus";
 import { HomeFilled, Plus } from '@element-plus/icons-vue';
@@ -178,15 +178,20 @@ const save = async () => {
     loadingInstance.close();
   }
 }
-onMounted(() => {
-  document.addEventListener('keydown', function (event) {
+
+const handleKeyDown = (event) => {
   // 检查是否按下了 Ctrl+S
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     event.preventDefault(); // 阻止浏览器的默认保存行为
     // 在这里添加自定义逻辑，例如保存数据或调用函数
     save();
   }
-});
+}
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown);
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown)
 })
 
 // 打印文档

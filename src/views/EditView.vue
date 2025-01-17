@@ -210,7 +210,7 @@ const loadDocuments = async () => {
 };
 // 处理文档点击
 const handleDocClick = (id) => {
-  router.push({ name: 'edit', params: { id: id } });
+  router.replace({ name: 'edit', params: { id: id } });
   loadDocuments();
 };
 
