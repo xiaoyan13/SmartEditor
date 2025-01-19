@@ -50,7 +50,7 @@ const configChange = async (i) => {
     // Determine to use UPDATE or ADD method by check it has ID attr or not
     if (dt.id) {
         try {
-            const resp = await fetch(`/api/article_config/update_config/${dt.id}`, {
+            const resp = await fetch(`/api/article_generate/update_config/${dt.id}`, {
                 method: 'PUT',
                 headers: {'Authorization': `Bearer ${userStore.token}` },
                 body: formData
@@ -67,7 +67,7 @@ const configChange = async (i) => {
         }
     }else {
         try {
-            const resp = await fetch('/api/article_config/add_config', {
+            const resp = await fetch('/api/article_generate/add_config', {
                 method: 'POST',
                 headers: {'Authorization': `Bearer ${userStore.token}` },
                 body: formData
@@ -93,7 +93,7 @@ const delConfig = async (i) => {
     const id = dt?.id;
     // determine whether need send DELETE to backend by data has ID or not.
     if (id) {
-        const resp = await request.delete(`/article_config/delete_config/${id}`);
+        const resp = await request.delete(`/article_generate/delete_config/${id}`);
         if (resp.code == 200) {
             ElMessage.success('删除成功');
             data.value.splice(i, 1);
@@ -144,7 +144,7 @@ const dialogHandleConfirm = () => {
 const init = async () => {
     NProgress.start()
     // get data
-    const resp = await request.get('/article_config/get_configs')
+    const resp = await request.get('/article_generate/get_configs')
     if (resp.code == 200) {
         // pre-clean data
         for (const config of resp.configs) {
