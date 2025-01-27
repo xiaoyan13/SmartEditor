@@ -42,7 +42,7 @@ const router = createRouter({
         },
         {
           path: "ArticleGenerate",
-          component: () => import('../components/ArticleGenerate.vue')
+          component: () => import('../components/ArticleGeneration.vue')
         },
         {
           path: "ArticleSetting",

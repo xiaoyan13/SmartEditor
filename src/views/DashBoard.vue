@@ -68,9 +68,6 @@
     </el-aside>
     <el-container>
       <el-header class="header">
-        <!-- <a href="https://github.com/electronic-pig/SmartEditor" target="_blank" style="text-decoration: none; ">
-          <i style="font-size: 4vh; color: #555" class="ri-github-fill"></i>
-        </a> -->
         <el-autocomplete v-model="search" :fetch-suggestions="querySearchAsync" :trigger-on-focus="false"
           value-key="title" @select="handleSelect" placeholder="通过文档名搜索文档" clearable
           style="width: 40vw;margin-left: 15vw">
@@ -80,32 +77,23 @@
             </el-icon>
           </template>
         </el-autocomplete>
-        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" size="small"
-          style="margin-left: 15vw" />
-        <el-dropdown size="large" trigger="click" @command="handleCommand">
-          <span class="el-dropdown-link">
-            {{ userStore.username }}
-            <el-icon class="el-icon--right">
-              <arrow-down />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="change_prompt">
-                <el-icon>
-                  <Setting />
-                </el-icon>修改配置</el-dropdown-item>
-              <el-dropdown-item command="reset_password">
-                <el-icon>
-                  <EditPen />
-                </el-icon>修改密码</el-dropdown-item>
-              <el-dropdown-item command="logout">
-                <el-icon>
-                  <SwitchButton />
-                </el-icon>退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <div class="avatar-container">
+          <el-avatar class="avatar" src="https://avatars.githubusercontent.com/u/90735179?v=4" size="small" style="margin-left: 20vw" />
+          <div class="card">
+              <div @click="handleCommand('change_prompt')" class="card-item">
+                <el-icon><Setting /></el-icon>
+                <span style="margin-left: 5px;">修改配置</span>
+              </div>
+              <div @click="handleCommand('reset_password')" class="card-item">
+                <el-icon><EditPen /></el-icon>
+                <span style="margin-left: 5px;">修改密码</span>
+              </div>
+              <div @click="handleCommand('logout')" class="card-item">
+                <el-icon><SwitchButton /></el-icon>
+                <span style="margin-left: 5px;">退出登录</span>
+              </div>
+          </div>
+        </div>
       </el-header>
       <el-main class="main">
         <router-view v-slot="{ Component }">
@@ -410,5 +398,55 @@ const setCell = ({ row, column, rowIndex, columnIndex }) => {
 
 .main {
   padding: 0;
+}
+
+.avatar-container {
+  position: relative; /* 使卡片相对于容器定位 */
+  display: inline-block;
+}
+
+.avatar {
+  display: block;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2; /* 确保头像在最前方 */
+}
+
+.card {
+  position: absolute;
+  top: 120%; /* 放置在头像下方 */
+  right: 9%;
+  width: 120px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  opacity: 0; /* 默认隐藏卡片 */
+  visibility: hidden; /* 防止点击卡片外的空白 */
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .card-item {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    color: var(--el-color-primary);
+  }
+}
+
+.avatar-container:hover .avatar {
+  transform: scale(1.2) translate(-10%, 10%); /* 头像变大向左下移动 */
+}
+
+.avatar-container:hover .card {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0); /* 卡片从隐形位置出现 */
+  cursor: pointer;
 }
 </style>

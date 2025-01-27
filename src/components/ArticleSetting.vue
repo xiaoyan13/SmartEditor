@@ -10,6 +10,7 @@ import CollapseItem from './CollapseItem.vue';
 const userStore = useUserStore()
 
 /*
+config fetched has attributes below:
 {
     "title": "string",
     "search_engine": "baidu" | "google" | "edge",
@@ -17,7 +18,8 @@ const userStore = useUserStore()
     "networking_RAG": boolean
     "local_RAG_support": boolean
     "file_list": {name:string}[]    // see https://github.com/element-plus/element-plus/blob/ea964f16723ea39551320ab3d68fb731dd227ab3/packages/components/upload/src/upload.ts#L31
-    "step_by_step": boolean
+    "step_by_step": number
+    "system_prompt": { content: string }
     // "advanced_config" : {
     //     "model_config": {...}
     // }
@@ -129,7 +131,8 @@ const dialogHandleConfirm = () => {
             "networking_RAG": true,
             "local_RAG_support": false,
             "file_list": [],
-            "step_by_step": true,
+            "step_by_step": 1,
+            "system_prompt": "",
             isloading: false, // used by html control
             deleteloading: false, // used by html control
         })
@@ -162,7 +165,8 @@ const init = async () => {
                 search_engine: config.search_engine,
                 step_by_step: config.step_by_step,
                 gpt: config.gpt,
-                file_list: file_list
+                file_list: file_list,
+                system_prompt: config.system_prompt.content,
             })
         }
         tags.value = Array(data.value.length).fill('ACTIVE')
