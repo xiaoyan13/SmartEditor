@@ -47,6 +47,7 @@
     "pinia": "^2.1.7",
     "remixicon": "^4.3.0",
     "tippy.js": "^6.3.7",
+    "tiptap-markdown": "^0.8.10",
     "vue": "^3.4.31",
     "vue-router": "^4.4.0",
     "vue3-puzzle-vcode": "^1.1.7"

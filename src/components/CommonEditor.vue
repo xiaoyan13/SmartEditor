@@ -15,6 +15,7 @@ import Table from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
+import { Markdown } from 'tiptap-markdown';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import css from 'highlight.js/lib/languages/css'
 import js from 'highlight.js/lib/languages/javascript'
@@ -36,7 +37,8 @@ watch(content, (newContent) => {
     if (isSame) {
         return
       }
-      editor.value.commands.setContent(newContent, false)
+      editor.value.commands.setContent(newContent, false);
+      editor.value.storage.markdown.getMarkdown();
   }
 );
 
@@ -48,6 +50,7 @@ const editor = useEditor({
     content: content.value,
     extensions: [
         StarterKit.configure({ codeBlock: false }),
+        Markdown,
         Underline,
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
         Superscript,

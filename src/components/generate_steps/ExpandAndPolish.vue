@@ -94,6 +94,8 @@ const initTaskState = (task) => {
         // Result generating process
         taskResult.value = task.task_result
         // check status of the component
+        commonConfigRef.value.gpt = task.model_used
+        commonConfigRef.value.search_engine = task.search_engine_used
         commonConfigRef.value.search_needed = task.search_needed
         commonConfigRef.value.network_RAG_search_needed = task.network_RAG_search_needed
         commonConfigRef.value.local_RAG_search_needed = task.local_RAG_search_needed
@@ -142,14 +144,7 @@ defineExpose({
     <div class="container">
         <div class="user-input" v-if="userInput">
             <h3>将扩写以下文章：</h3>
-            <el-input
-                v-model="userInput"
-                :autosize="{ minRows: 4 }"
-                type="textarea"
-                placeholder="🌱请输入用于生成文章的提示词。"
-                maxlength="1000"
-                show-word-limit
-            />
+            <CommonEditor v-model="userInput" />
         </div>
         <CommonConfig ref="commonConfigRef" />
         <div class="prompt-operate">
@@ -177,7 +172,6 @@ defineExpose({
     margin: 0 4%;
 
     .user-input {
-        font-weight: bold;
         margin-top: 30px;
         margin-right: 10px;
     }
@@ -205,7 +199,7 @@ defineExpose({
         justify-content: end;
         align-items: center;
         button {
-            margin:15px 5px;
+            margin:5px 5px;
         }
     }
 }

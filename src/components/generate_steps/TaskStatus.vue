@@ -2,6 +2,8 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import request from '../../utils/request.js'
 import { ElMessage } from 'element-plus'
+import NetRAGTable from './tables/NetRAGTable.vue'
+import SearchResultTable from './tables/SearchResultTable.vue'
 
 const props = defineProps({
     config: Object, 
@@ -11,9 +13,9 @@ const props = defineProps({
 const emit = defineEmits(['searchEnded'])
 
 const task = ref(null)
-const search_result = ref('')
-const network_RAG_result = ref('')
-const local_RAG_search_result = ref('')
+const search_result = ref()
+const network_RAG_result = ref()
+const local_RAG_search_result = ref()
 
 // resultWanted: 'search_result' | 'network_RAG_search_result' | 'local_RAG_search_result'
 const getResult = async (resultWanted) => {
@@ -112,7 +114,7 @@ onUnmounted(() => cleanTimer())
                     </div>
                 </template>
                 <el-main v-loading="!task?.search_ready">
-                    {{ search_result }}
+                    <SearchResultTable :search-result="search_result"></SearchResultTable>
                 </el-main>
             </el-collapse-item>
             <el-collapse-item v-if="task?.network_RAG_search_needed" name="networking_RAG">
@@ -124,7 +126,7 @@ onUnmounted(() => cleanTimer())
                     </div>
                 </template>
                 <el-main v-loading="!task?.network_RAG_search_ready">
-                    {{ network_RAG_result }}
+                    <NetRAGTable :rag-result="network_RAG_result"></NetRAGTable>
                 </el-main>
             </el-collapse-item>
             <el-collapse-item v-if="task?.local_RAG_search_needed && config.local_RAG_files?.length" name="local_RAG">

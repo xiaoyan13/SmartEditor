@@ -47,6 +47,8 @@ const startComprehendRequest = async () => {
     const configId = config.id;
     const taskResp = await request.post(`/article_generate/create_generate_task/${configId}/1`, {
         "article_title": articleTitle.value,
+        "model_used": commonConfigRef.value.gpt,
+        "search_engine": commonConfigRef.value.search_engine,
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
@@ -108,6 +110,8 @@ const initTaskState = (task) => {
         // console.log(task)
         taskResult.value = task.task_result
         // check status of the component
+        commonConfigRef.value.gpt = task.model_used
+        commonConfigRef.value.search_engine = task.search_engine_used
         commonConfigRef.value.search_needed = task.search_needed
         commonConfigRef.value.network_RAG_search_needed = task.network_RAG_search_needed
         commonConfigRef.value.local_RAG_search_needed = task.local_RAG_search_needed

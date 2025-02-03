@@ -13,10 +13,10 @@ const props = defineProps({
 const emit = defineEmits(['addToFormData', 'delConfig', 'changeConfig', 'changeTag'])
 
 const GPToptions = [
+    {value: 'deepseek', label: 'deepseek'},
     {value: 'chatgpt', label: 'chatGPT'}, 
     {value: 'erniebot', label: '文心一言'}, 
     {value: 'gemini', label: 'gemini'}, 
-    {value: 'deepseek', label: 'deepseek'},
 ]
 const engineOptions = [
     {value: 'baidu', label: '百度'}, 

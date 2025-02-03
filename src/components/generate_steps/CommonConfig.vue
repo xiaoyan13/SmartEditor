@@ -2,18 +2,18 @@
 // this is a full-controlled component.
 import { ref } from 'vue'
 
-const search_needed = ref(false) 
-const network_RAG_search_needed = ref(false)
-const local_RAG_search_needed = ref(false)
+const search_needed = ref(true) 
+const network_RAG_search_needed = ref(true)
+const local_RAG_search_needed = ref(true)
 
 const gpt = ref()
 const search_engine = ref()
 
 const GPToptions = [
+    {value: 'deepseek', label: 'deepseek'},
     {value: 'chatgpt', label: 'chatGPT'}, 
     {value: 'erniebot', label: '文心一言'}, 
     {value: 'gemini', label: 'gemini'}, 
-    {value: 'deepseek', label: 'deepseek'},
 ]
 const engineOptions = [
     {value: 'baidu', label: '百度'}, 
@@ -22,6 +22,8 @@ const engineOptions = [
 ]
 
 defineExpose({
+    gpt,
+    search_engine,
     search_needed,
     network_RAG_search_needed,
     local_RAG_search_needed,
