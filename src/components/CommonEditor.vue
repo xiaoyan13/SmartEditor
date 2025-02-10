@@ -30,6 +30,12 @@ import { Color } from '@tiptap/extension-color'
 import fontFamily from "../utils/fontFamily.js"
 import colorList from "../utils/colors.js"
 
+defineProps({
+    showHeader: {
+        type: Boolean,
+        default: true,
+    }
+})
 const content = defineModel()
 
 watch(content, (newContent) => {
@@ -120,7 +126,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="common-editor">
-        <div v-if="editor" class="common-editor-header">
+        <div v-if="editor && showHeader" class="common-editor-header">
             <el-tooltip content="撤回" :hide-after="0">
                 <button @click="editor.chain().focus().undo().run()" :disabled="!editor.can().chain().focus().undo().run()">
                 <i class="ri-arrow-go-back-line"></i>

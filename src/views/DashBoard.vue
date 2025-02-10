@@ -2,8 +2,7 @@
   <el-container style="height: 100vh">
     <el-aside width="14vw" style="background-color: var(--nav--color)">
       <div class="platform">
-        <img class="platform-logo" src="@/assets/images/logo.png" alt="logo" />
-        <div class="platform-title">妙 笔</div>
+        <div class="platform-logo">📔</div>
       </div>
       <div class="add-container">
         <button class="add" @click="createDoc()"><i class="ri-add-line"></i>&nbsp;新建文档</button>
@@ -55,30 +54,22 @@
           &nbsp;&nbsp;
           回收站
         </router-link>
-        <div class="more" @click="getMore()">更多</div>
-        <el-dialog v-model="RightsDialog" title="权益对比">
-          <el-table :data="tableData" :header-cell-style="setHeader" :cell-style="setCell">
-            <el-table-column prop="Type" label="权益类型"></el-table-column>
-            <el-table-column prop="super" label="超级会员"></el-table-column>
-            <el-table-column prop="gold" label="黄金会员"></el-table-column>
-            <el-table-column prop="normal" label="普通会员"></el-table-column>
-          </el-table>
-        </el-dialog>
       </div>
     </el-aside>
     <el-container>
       <el-header class="header">
-        <el-autocomplete v-model="search" :fetch-suggestions="querySearchAsync" :trigger-on-focus="false"
-          value-key="title" @select="handleSelect" placeholder="通过文档名搜索文档" clearable
-          style="width: 40vw;margin-left: 15vw">
-          <template #prefix>
-            <el-icon>
-              <Search />
-            </el-icon>
-          </template>
-        </el-autocomplete>
+        <div style="width: 60vw;">
+          <el-autocomplete v-model="search" :fetch-suggestions="querySearchAsync" :trigger-on-focus="false"
+            value-key="title" @select="handleSelect" placeholder="📔通过文档名搜索文档..." clearable>
+            <template #prefix>
+              <el-icon>
+                <Search />
+              </el-icon>
+            </template>
+          </el-autocomplete>
+        </div>
         <div class="avatar-container">
-          <el-avatar class="avatar" src="https://avatars.githubusercontent.com/u/90735179?v=4" size="small" style="margin-left: 20vw" />
+          <el-avatar class="avatar" src="https://avatars.githubusercontent.com/u/90735179?v=4" size="small" />
           <div class="card">
               <div @click="handleCommand('change_prompt')" class="card-item">
                 <el-icon><Setting /></el-icon>
@@ -224,27 +215,6 @@ const handleFileChange = async (event) => {
     }
   }
 };
-// 更多功能
-const getMore = () => {
-  RightsDialog.value = true;
-};
-// 权益对比表格样式
-const setHeader = ({ row, column, rowIndex, columnIndex }) => {
-  if (columnIndex == 1) {
-    return { color: 'blueviolet' };
-  }
-  if (columnIndex == 2) {
-    return { color: 'orange' };
-  }
-};
-const setCell = ({ row, column, rowIndex, columnIndex }) => {
-  if (columnIndex == 1) {
-    return { color: 'blueviolet' };
-  }
-  if (columnIndex == 2) {
-    return { color: 'orange' };
-  }
-};
 </script>
 
 <style scoped>
@@ -256,7 +226,7 @@ const setCell = ({ row, column, rowIndex, columnIndex }) => {
 }
 
 .platform-logo {
-  width: 7vw;
+  font-size: 7vw;
   margin: 1vh auto;
 }
 
@@ -392,6 +362,7 @@ const setCell = ({ row, column, rowIndex, columnIndex }) => {
   box-shadow: 0 0 2rem 0 rgba(41, 48, 66, 0.1);
   display: flex;
   align-items: center;
+  justify-content: space-around;
   background-color: var(--nav--color);
   color: #606266;
 }
@@ -414,8 +385,8 @@ const setCell = ({ row, column, rowIndex, columnIndex }) => {
 
 .card {
   position: absolute;
-  top: 120%; /* 放置在头像下方 */
-  right: 9%;
+  top: 130%; /* 放置在头像下方 */
+  right: 20px;
   width: 120px;
   background: #f9f9f9;
   border: 1px solid #ddd;

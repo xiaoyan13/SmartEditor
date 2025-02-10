@@ -188,10 +188,13 @@ let preTaskResult = ""
                 v-model="config"
                 filterable
                 remote
-                placeholder="请输入整文配置的名称..."
+                placeholder="🐻‍❄️ 输入整文配置的名称..."
                 :remote-method="remoteMethod"
                 :loading="headerLoading"
                 @change="initTaskView"
+                class="setting-search"
+                @focus="changeWidth = true"
+                @blur="changeWidth = false"
             >
                 <el-option
                 v-for="item in headerOptions"
@@ -201,35 +204,38 @@ let preTaskResult = ""
                 />
             </el-select>
         </div>
-            <div v-if="config?.id" class="container">
-            <h2 style="color: var(--el-color-primary); margin: 30px 10px;">📰 {{ config?.title }}</h2>
-            <el-steps :style="{ margin: stepMargin }" :active="activeStep" finish-status="success">
-                <template v-for="(step, index) in stepList" v-if="stepList.length > 1">
-                    <el-step 
-                        :title="'Step ' + (index + 1)" 
-                        :description="step.description"
-                        @click="renderTargetTaskView(index)"
-                        style="cursor: pointer;"
-                        >
-                        <template #icon>
-                            <div v-html="step.icon" style="font-size: large"></div>
-                        </template>
-                    </el-step>
-                </template>
-            </el-steps>
-            <keep-alive>
-                <component
-                ref="stepComponentRef"
-                :pre-task-result="preTaskResult"
-                :is="stepList[activeStep]?.vueComponent"
-                :current-step="activeStep"
-                :article-config="config"
-                @pre-step="renderPreTaskView"
-                @next-step="renderNextTaskView"
-                @update-now-tasks="fetchNowTasks"
-                />
-            </keep-alive>
-        </div>
+
+        <transition name="fade">
+            <div v-if="config?.id" :key="config?.id" class="container">
+                <h2 style="color: var(--el-color-primary); margin: 30px 10px;">📰 {{ config?.title }}</h2>
+                <el-steps :style="{ margin: stepMargin }" :active="activeStep" finish-status="success">
+                    <template v-for="(step, index) in stepList" v-if="stepList.length > 1">
+                        <el-step 
+                            :title="'Step ' + (index + 1)" 
+                            :description="step.description"
+                            @click="renderTargetTaskView(index)"
+                            style="cursor: pointer;"
+                            >
+                            <template #icon>
+                                <div v-html="step.icon" style="font-size: large"></div>
+                            </template>
+                        </el-step>
+                    </template>
+                </el-steps>
+                <keep-alive>
+                    <component
+                    ref="stepComponentRef"
+                    :pre-task-result="preTaskResult"
+                    :is="stepList[activeStep]?.vueComponent"
+                    :current-step="activeStep"
+                    :article-config="config"
+                    @pre-step="renderPreTaskView"
+                    @next-step="renderNextTaskView"
+                    @update-now-tasks="fetchNowTasks"
+                    />
+                </keep-alive>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -240,7 +246,12 @@ let preTaskResult = ""
     margin-bottom: 100px;
     .header {
         margin: 20px 10px;
+        margin-top: 30px;
+        .setting-search>:deep(.el-select__wrapper.el-tooltip__trigger.el-tooltip__trigger) {
+            border-radius: 10px;
+        }
     }
+
 
     .inputs {
         .article-prompt-input {
@@ -274,5 +285,31 @@ let preTaskResult = ""
     justify-content: end;
     align-items: center;
 }
+
+
+.fade-enter-active {
+  transition: all 0.5s;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* 让离开时没有过渡，直接消失 */
+.fade-leave-active {
+  transition: none;
+}
+
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 
 </style>

@@ -2,9 +2,7 @@
 	<node-view-wrapper class="vue-component">
 		<label>ERNIE Bot</label>
 		<div class="reply">
-			<blockquote>
-				<p v-if="replySuccess">{{ reply }}</p>
-			</blockquote>
+				<common-editor v-if="replySuccess" v-model="reply" :show-header="false"></common-editor>
 		</div>
 		<div class="content">
 			<el-input v-model="prompt" style="width: 100%" :autosize="{ minRows: 2 }" type="textarea"
@@ -27,6 +25,10 @@ import { onMounted, ref } from 'vue';
 import { Check } from '@element-plus/icons-vue'
 import { nodeViewProps, NodeViewWrapper } from '@tiptap/vue-3';
 import { ElMessage, ElLoading, ElInput } from "element-plus";
+import { useUserStore } from '../stores/userStore';
+import CommonEditor from './CommonEditor.vue';
+
+const userStore = useUserStore()
 
 const prompt = ref('')
 const reply = ref('')
@@ -111,16 +113,6 @@ onMounted(() => {
 			top: 0;
 		}
 
-		.reply {
-			padding: 1.5rem 1rem 0 1rem;
-
-			blockquote {
-				border-left: 4px solid var(--el-color-primary-light-7);
-				margin: 0;
-				padding-left: 1rem;
-			}
-		}
-
 		.content {
 			padding: 0.5rem;
 			display: flex;
@@ -134,5 +126,11 @@ onMounted(() => {
 			justify-content: space-between;
 		}
 	}
+}
+</style>
+
+<style lang="css" scoped>
+.reply :deep(.main) {
+	margin: 40px;
 }
 </style>
