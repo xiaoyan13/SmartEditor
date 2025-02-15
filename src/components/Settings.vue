@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus';
 import request from '../utils/request.js'
+import { Eleme } from '@element-plus/icons-vue'
 
 const props = defineProps({
     signal: Boolean
@@ -14,6 +15,7 @@ watch(props, () => {
 })
 
 const prompts = ref([])
+const templates = ref([])
 const tips = ref([])
 
 // validate with debounce
@@ -31,7 +33,7 @@ const validate = (str, pos) => {
     }, 300)
     // use a macro task here, next time `validate` func be called,
     // the `timer` will be true, then be cleared and retime.
-} 
+}
 
 const loading = ref(false);
 const submit = async () => {
@@ -44,11 +46,20 @@ const submit = async () => {
         }
     }
     try {
-        const resp = await request.put('/prompt/update_prompts', prompts.value)
-        if (resp.code == 200) {
+        // prompts
+        const resp1 = await request.put('/prompt/update_prompts', prompts.value)
+        // templates
+        const resp2 = await request.put('/prompt/update_templates', templates.value)
+        
+        if (resp1.code == 200 && resp2.code == 200) {
             ElMessage.success('保存成功')
         }else {
-            ElMessage.error(resp.message)
+            if (resp1.code != 200) {
+                ElMessage.error(resp1.message)
+            }
+            if (resp2.code != 200) {
+                ElMessage.error(resp2.message)
+            }
         }
     } catch (error) {
         ElMessage.error(error)
@@ -70,6 +81,18 @@ const init = async () => {
   } catch (error) {
     ElMessage.error(error)
   }
+
+  try {
+    // get templates
+    const resp = await request.get('/prompt/user/templates')
+    if (resp.code != 200) {
+        ElMessage.error('prompts获取失败!')
+    }else {
+        templates.value = resp.templates
+    }
+  } catch (error) {
+    ElMessage.error(error)
+  }
 }
 init()
 
@@ -81,33 +104,62 @@ init()
         <template #header>
             <div class="dialog-title">{{ title }}</div>
         </template>
-        <el-scrollbar height="60vh">
-             <div>
-                <h2>润色 Prompt 配置</h2>
-                <i class="ri-questionnaire-line"></i>
-                <span style="font-weight: 800; font-size: medium;"> tips: 修改完毕后，请点击确认按钮。</span>
-                <hr>
-                <template v-for="(p, index) of prompts">
-                    <div class="prompt" style="position: relative">
-                        <h3>{{ p.title }}</h3>
-                        <el-input
-                        v-model="p.content"
-                        @input="(newstring) => validate(newstring, index)"
-                        style="width: 99%"
-                        :autosize="{ minRows: 3 }"
-                        type="textarea"
-                        maxlength="400"
-                        show-word-limit
-                        />
-                        <Transition name="fade">
-                            <div v-show="tips[index]" class="invalid-alert">
-                            <i class="ri-error-warning-line"></i>
-                            请保证：输入的内容包含 `{text}` 占位符。
+        <el-scrollbar height="60vh" class="collapses">
+            <i class="ri-questionnaire-line"></i>
+            <span style="font-weight: 800; font-size: medium;"> tips: 修改完毕后，请点击确认按钮。</span>
+            <hr>
+            <el-collapse accordion>
+                <el-collapse-item title="润色 Prompt 配置">
+                    <div>
+                        <template v-for="(p, index) of prompts">
+                            <div class="prompt" style="position: relative">
+                                <h3 style="color: var(--el-color-primary)">{{ p.title }}</h3>
+                                <el-input
+                                v-model="p.content"
+                                @input="(newstring) => validate(newstring, index)"
+                                style="width: 99%"
+                                :autosize="{ minRows: 3 }"
+                                type="textarea"
+                                maxlength="400"
+                                show-word-limit
+                                />
+                                <Transition name="fade">
+                                    <div v-show="tips[index]" class="invalid-alert">
+                                    <i class="ri-error-warning-line"></i>
+                                    请保证：输入的内容包含 `{text}` 占位符。
+                                    </div>
+                                </Transition>
                             </div>
-                        </Transition>
+                        </template>
                     </div>
-                </template>
-             </div>
+                </el-collapse-item>
+                <el-collapse-item title="模板 Prompt 配置">
+                    <div class="template-config">
+                        <el-collapse accordion>
+                            <template v-for="t of templates" :key="t.id">
+                                <el-collapse-item>
+                                    <template #title>
+                                        <h4 style="color: var(--el-color-primary)">{{ t.label }}</h4>
+                                    </template>
+                                    <template v-for="option of t.options" :key="option.title">
+                                        <div class="option">
+                                            <h3 style="margin: 0;">{{ option.title }}</h3>
+                                            <el-input
+                                                v-model="option.prompt"
+                                                style="width: 99%"
+                                                :autosize="{ minRows: 3 }"
+                                                type="textarea"
+                                                maxlength="1000"
+                                                show-word-limit
+                                            />
+                                        </div>
+                                    </template>
+                                </el-collapse-item>
+                            </template>
+                        </el-collapse>
+                    </div>
+                </el-collapse-item>
+            </el-collapse>
         </el-scrollbar>
         <template #footer>
             <el-button 
@@ -154,6 +206,22 @@ init()
 .fade-enter,
 .fade-leave-to {
   opacity: 0; /* 初始/消失状态 */
+}
+
+.collapses {
+    padding: 20px;
+}
+
+.collapses :deep(.el-collapse-item__header) {
+    font-size: large;
+    font-weight: 700;
+}
+
+.template-config {
+    padding-left: 20px;
+    .option {
+        margin-bottom: 20px;
+    }
 }
 
 </style>

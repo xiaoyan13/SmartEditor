@@ -52,7 +52,7 @@
                 </div>
               </transition-group>
             </div>
-            <div v-else key="promptPresets">
+            <div v-else-if="promptPresets" key="promptPresets">
               <el-select v-model="profession" placeholder="选择职业" style="margin-top: 1vh;">
                 <el-option v-for="item in promptPresets" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
@@ -115,7 +115,6 @@ import { Color } from '@tiptap/extension-color'
 import VueComponent from '../utils/Extension.js'
 import slash from '../utils/slash.js'
 import suggestion from '../utils/suggestion.js'
-import promptPresets from '../utils/promptPresets';
 import typographyTemps from '../utils/typographyTemps';
 
 const lowlight = createLowlight()
@@ -233,6 +232,26 @@ const InsertErnie = (prompt) => {
     editor.value.chain().focus().insertContent(`<vue-component message="${prompt}" />`).run();
   }
 }
+
+// 模板
+const promptPresets = ref()
+const fetchTemplate = async () => {
+  try {
+    const resp = await request.get('/prompt/user/templates');
+    if (resp.code == 200) {
+      promptPresets.value = resp.templates
+    }else {
+        ElMessage.error(resp.message)
+    }
+  } catch (error) {
+    throw new Error('网络响应不正常')
+  }
+  // add value attr
+  for (const p of promptPresets.value) {
+    p.value = p.label
+  }
+}
+fetchTemplate()
 
 // 排版
 const setTypograph = async (item) => {

@@ -114,6 +114,7 @@ if (props.item.system_prompt) {
             </el-upload>
         </template>
         <template v-if="system_prompt_open">
+            <h3 style="margin-bottom: 0px;">自定义 System prompt：</h3>
             <el-input
                 v-model="item.system_prompt"
                 :autosize="{ minRows: 6 }"
