@@ -2,9 +2,9 @@
 // this is a full-controlled component.
 import { ref } from 'vue'
 
-const search_needed = ref(true) 
-const network_RAG_search_needed = ref(true)
-const local_RAG_search_needed = ref(true)
+const search_needed = ref(false) 
+const network_RAG_search_needed = ref(false)
+const local_RAG_search_needed = ref(false)
 
 const gpt = ref()
 const search_engine = ref()

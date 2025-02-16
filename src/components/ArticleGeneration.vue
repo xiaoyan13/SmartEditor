@@ -30,22 +30,18 @@ const remoteMethod = async (query) => {
 
 const stepHTML = {
     "task_comprehend": {
-        description: '任务理解',
         icon: `<i class="ri-compasses-2-line"></i>`,
         vueComponent: TaskComprehend,
     },
     "outline": {
-        description: '大纲生成',
         icon: `<i class="ri-layout-2-line"></i>`,
         vueComponent: OutlineGenerate,
     },
     "article_gen": {
-        description: '文章生成',
         icon: `<i class="ri-edit-2-fill"></i>`,
         vueComponent: ArticleGenerate,
     },
     "expand_and_polish": {
-        description: '扩写与优化',
         icon: `<i class="ri-sparkling-2-line"></i>`,
         vueComponent: ExpandAndPolish,
     }
@@ -108,15 +104,18 @@ const initTaskView = async () => {
     }else if (stepsNum == 4) { 
         stepList.value = [stepHTML.task_comprehend, stepHTML.outline,stepHTML.article_gen, stepHTML.expand_and_polish]
     }
+    for (let i = 0; i < stepList.value.length; i++) {
+        stepList.value[i].description = config.value.steps[i].title
+    }
 
     await fetchNowTasks()
     // change task view
     activeStep.value = now_tasks.length - 1
     if (now_tasks.length == 0) activeStep.value = 0
-    if (now_tasks.length == 4) activeStep.value = 3
+    // if (now_tasks.length == 4) activeStep.value = 3
     // waiting for vue rendering corrent component...
     await nextTick()
-    // For now, component has mounted, we insert corresponding STEP to the accessedSteps
+    // For now, component has mounted, we insert corresponding step to the accessedSteps
     accessedSteps.add(activeStep.value)
     // init task view data state
     stepComponentRef.value.initTaskState(now_tasks[activeStep.value])

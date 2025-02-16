@@ -37,11 +37,64 @@ watch(() => {
         props.item.local_RAG_support,
         props.item.step_by_step,
         props.item.file_list.length,
-        props.item.system_prompt
+        props.item.system_prompt,
+        props.item.steps.length
     ]
 }, () => {
     emit('changeTag', props.index, 'NEED_SAVE')
 })
+
+const changeSteps = (new_val) => {
+    switch (new_val) {
+        case 2:
+          props.item.steps = [
+            {step_order: 1, title: "大纲生成", prompt: "请你根据以上设定生成大纲。"},
+            {step_order: 2, title: "文章生成", prompt: "请你根据以下给定的大纲生成一篇文章。"},
+          ]
+          break
+        case 3:
+          props.item.steps = [
+            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
+            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
+            {step_order: 3, title: "文章生成", prompt: "请你根据以下给定的大纲生成一篇文章。"},
+          ]
+          break
+        case 4:
+          props.item.steps = [
+            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
+            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
+            {step_order: 3, title: "文章生成", prompt: "请你根据以上设定与大纲生成一篇文章。"},
+            {step_order: 4, title: "扩写与优化", prompt: "请你扩写以下文章。"},
+          ]
+          break
+        default:
+          props.item.steps = [
+            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
+            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
+            {step_order: 3, title: "文章生成", prompt: "请你根据以上设定与大纲生成一篇文章。"},
+            {step_order: 4, title: "扩写与优化", prompt: "请你扩写以下文章"},
+         ]
+         let r = props.item.steps.length
+         while(r + 1 <= new_val) {
+            props.item.steps.push({step_order: r + 1});
+            r += 1;
+         }
+    }
+}
+
+const dialogVisible = ref(false)
+let activeIndex = -1
+const dialogContent = ref("")
+const showModal = (index) => {
+    activeIndex = index;
+    dialogContent.value = props.item.steps[activeIndex].prompt;
+    dialogVisible.value = true;
+}
+const changePrompt = () => {
+    props.item.steps[activeIndex].prompt = dialogContent.value
+    dialogVisible.value = false;
+    activeIndex = -1;
+}
 
 const system_prompt_open = ref(false)
 if (props.item.system_prompt) {
@@ -61,7 +114,7 @@ if (props.item.system_prompt) {
         </template>
         <div class="select-container">
             设置分步生成：
-            <el-input-number v-model="item.step_by_step" :min="1" :max="4" style="margin-right: 40px;" />
+            <el-input-number v-model="item.step_by_step" @change="changeSteps" :min="1" :max="5" style="margin-right: 40px;" />
             模型源：
             <el-select
                 v-model="item.gpt"
@@ -89,6 +142,51 @@ if (props.item.system_prompt) {
                 />
                 </el-select>
         </div>
+        <transition name="fade">
+            <div class="step-table" v-if="item.step_by_step >  1">
+                <el-table :data="item.steps">
+                    <el-table-column prop="step_order" label="步骤" width="180" />
+                    <el-table-column prop="title" label="任务名称" width="180">
+                        <template #default="scope">
+                            <el-input v-model="item.steps[scope.$index].title" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="prompt" label="用户默认提示词">
+                        <template #default="scope">
+                            <div class="ellipsis">{{ item.steps[scope.$index].prompt }}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="180">
+                        <template #default="scope">
+                            <el-button @click="showModal(scope.$index)">
+                            修改
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </transition>
+        <el-dialog v-model="dialogVisible">
+            <template #header>
+                <span style="font-size: large; font-weight: 600; color: var(--el-color-primary)">修改提示词</span>
+            </template>
+            <el-input 
+            v-model="dialogContent"
+            :autosize="{ minRows: 10 }"
+            type="textarea"
+            placeholder="🌱在此输入修改后的默认提示词..."
+            maxlength="1000"
+            show-word-limit
+            />
+            <template #footer>
+                <div>
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="changePrompt">
+                    确定
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
         <div>
             <el-checkbox v-model="item.networking_RAG" label="启用远程 RAG 检索" size="large" />
             <el-checkbox v-model="item.local_RAG_support" label="启用本地 RAG" size="large" />
@@ -120,7 +218,7 @@ if (props.item.system_prompt) {
                 :autosize="{ minRows: 6 }"
                 style="margin-top: 10px;"
                 type="textarea"
-                placeholder="🏖️ 在此输入将用于文章生成的 System Prompt......"
+                placeholder="🏖️ 在此输入System Prompt, 此系统提示词在本配置中全局生效。"
             />
         </template>
         <div class="confirm">
@@ -165,6 +263,23 @@ if (props.item.system_prompt) {
     justify-content: end;
     margin: 5px 20px;
     margin-bottom: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.ellipsis {
+  white-space: nowrap;           /* 禁止换行 */
+  overflow: hidden;              /* 隐藏超出容器的部分 */
+  text-overflow: ellipsis;       /* 超出部分显示省略号 "..." */
+  width: 90%;                  /* 设置一个固定宽度 */
 }
 
 </style>

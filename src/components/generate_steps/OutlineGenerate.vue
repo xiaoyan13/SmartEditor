@@ -18,18 +18,16 @@ const props = defineProps({
 const emit = defineEmits(['preStep', 'nextStep', 'updateNowTasks'])
 
 const userInput = ref(props.preTaskResult)
-const preprocessInput = () => {
-    if (props.currentStep > 0) { // 如果不是第一步
-        userInput.value += "\n\n下一步，我将基于这些推理生成大纲.";
-    }
-}
-preprocessInput()
+const stepPromptStr = ref(props.articleConfig.steps[props.currentStep].prompt)
+const canRestartTask = ref(false) // re-generate button
+const controller = ref(null); // AbortController
 
 const commonConfigRef = ref()
 
 const articleTitle = ref(props.articleConfig.article_prompt.title)
 const configPromptStr = ref(props.articleConfig.article_prompt.content)
 const searchHasRan = ref(false) // control the <TaskStatus> show or not
+const searchViewPrinted = ref(false) // <TaskStatus> done, all searchs' results have been gained.
 const taskId = ref()
 const taskResult = ref()
 const taskDone = ref(false) // control the <next-step> show or not
@@ -65,7 +63,14 @@ const step1StartOutlineRequest = async () => {
         ElMessage.success('任务开始运行');
         // update to new task id
         taskId.value = taskResp["task_id"];
-        searchHasRan.value = true;
+        searchHasRan.value = commonConfigRef.value.search_needed || commonConfigRef.value.local_RAG_search_needed || commonConfigRef.value.network_RAG_search_needed
+        if (searchHasRan.value == false) {
+            // 如果不需要搜索，则直接开始生成
+            startOutlineGenerate()
+        }else {
+            // 否则，等到搜索组件渲染完毕（这意味着所有搜索已经完成），再开始生成
+            watch(searchViewPrinted, () => startOutlineGenerate(), { once: true });
+        }
         emit('updateNowTasks')
     }else {
         ElMessage.error(taskResp.message)
@@ -77,7 +82,7 @@ const step2StartOutlineRequest = async () => {
     // create new task and run
     const configId = config.id;
     const taskResp = await request.post(`/article_generate/create_generate_task/${configId}/2`, {
-        "user_input": userInput.value,
+        "user_input": userInput.value + "\n\n" + stepPromptStr.value,
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
@@ -86,7 +91,14 @@ const step2StartOutlineRequest = async () => {
         ElMessage.success('任务开始运行');
         // update to new task id
         taskId.value = taskResp["task_id"];
-        searchHasRan.value = true;
+        searchHasRan.value = commonConfigRef.value.search_needed || commonConfigRef.value.local_RAG_search_needed || commonConfigRef.value.network_RAG_search_needed
+        if (searchHasRan.value == false) {
+            // 如果不需要搜索，则直接开始生成
+            startOutlineGenerate()
+        }else {
+            // 否则，等到搜索组件渲染完毕（这意味着所有搜索已经完成），再开始生成
+            watch(searchViewPrinted, () => startOutlineGenerate(), { once: true });
+        }
         emit('updateNowTasks')
     }else {
         ElMessage.error(taskResp.message)
@@ -101,10 +113,7 @@ const startOutlineRequest = async () => {
 }
 
 const startOutlineGenerate = async () => {
-    if (taskResult.value) {
-        // if generation has done, return directly
-        return;
-    }
+    canRestartTask.value = true
 
     try {
         const response = await fetch(`/api/article_generate/task/result_gen/${taskId.value}/geneate_outline`, {
@@ -134,17 +143,65 @@ const startOutlineGenerate = async () => {
     }
 }
 
+const reGenerate = async () => {
+    taskDone.value = false
+
+    // 如果已有 controller，先取消之前的请求
+    if (controller.value) {
+        controller.value.abort();
+        ElMessage.warning('上次请求已终止...');
+    }
+    // 创建新的 AbortController
+    controller.value = new AbortController();
+    const signal = controller.value.signal;
+    try {
+        const response = await fetch(`/api/article_generate/task/result_gen/${taskId.value}/geneate_outline/regenerate`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userStore.token}`
+            },
+            signal
+        });
+        if (!response.ok) {
+            throw new Error('网络响应不正常');
+        }
+        ElMessage.success('重新开始生成大纲...')
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let receivedText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const decodedValue = decoder.decode(value, { stream: true });
+            receivedText += decodedValue;
+            taskResult.value = receivedText;
+        }
+        taskDone.value = true;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('请求已被取消');
+        } else {
+            ElMessage.error(error.message);
+        }
+    }finally {
+        controller.value = null;
+    }
+}
+
+
 // init this component's task view state
-const initTaskState = (task) => {
+const initTaskState = async (task) => {
     if (task) {
         // 如果已有 task 对应此视图, 则渲染它：
         taskId.value = task.id
-        searchHasRan.value = true
+        searchHasRan.value = task.search_needed || task.local_RAG_search_needed || task.network_RAG_search_needed
         if (task.generate_status == 'done') {
             taskDone.value = true;
         }
         // Result generating process
         taskResult.value = task.task_result
+        canRestartTask.value = true
         // check status of the component
         commonConfigRef.value.gpt = task.model_used
         commonConfigRef.value.search_engine = task.search_engine_used
@@ -190,14 +247,26 @@ defineExpose({
             </div>
         </div>
         <CommonConfig ref="commonConfigRef" />
+        <div class="step-input">
+            <span style="margin-top: 6px; width: 100px;">{{articleConfig.steps[currentStep].title}}:</span>
+            <el-input
+                v-model="stepPromptStr"
+                :autosize="{ minRows: 10 }"
+                type="textarea"
+                :placeholder="`🌱请输入生成${ articleConfig.steps[currentStep].title }的提示词。`"
+                maxlength="1000"
+                show-word-limit
+            />
+        </div>
         <div class="prompt-operate">
-            <el-button @click="startOutlineRequest" :disabled="searchHasRan">开始任务</el-button>
+            <el-button @click="startOutlineRequest" :disabled="searchHasRan" v-if="!canRestartTask">开始任务</el-button>
+            <el-button @click="reGenerate" v-else>重新开始任务</el-button>
         </div>
         <TaskStatus
         v-if="searchHasRan"
         :config="articleConfig" 
         :task-id="taskId"
-        @search-ended="startOutlineGenerate" />
+        @search-ended="searchViewPrinted = true" />
         <CommonEditor v-if="taskResult" v-model="taskResult" />
         <div class="change-view" v-if="taskDone">
             <el-button @click="emit('preStep')">上一步</el-button>
@@ -232,6 +301,13 @@ defineExpose({
             align-items: center;
             font-weight: bold;
         }
+    }
+    
+    .step-input {
+        margin-bottom: 20px;
+        margin-right: 10px;
+        display: flex;
+        font-weight: bold;
     }
 
     .prompt-operate {

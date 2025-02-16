@@ -17,8 +17,9 @@ config fetched has attributes below:
     "gpt": "chatgpt" | "erniebot" | "gemini",
     "networking_RAG": boolean
     "local_RAG_support": boolean
-    "file_list": {name:string}[]    // see https://github.com/element-plus/element-plus/blob/ea964f16723ea39551320ab3d68fb731dd227ab3/packages/components/upload/src/upload.ts#L31
+    "file_list": {name:string}[]    // see this struct at https://github.com/element-plus/element-plus/blob/ea964f16723ea39551320ab3d68fb731dd227ab3/packages/components/upload/src/upload.ts#L31
     "step_by_step": number
+    "steps": {step_order: int, title: string, prompt: string}[]
     "system_prompt": { content: string }
     // "advanced_config" : {
     //     "model_config": {...}
@@ -34,8 +35,20 @@ const changeTag = (i, val) => {
     tags.value[i] = val;
 }
 
+const validate = (steps) => {
+    for (const step of steps) {
+        if (!step.prompt || !step.title) return false
+    }
+    return true
+}
+
 const configChange = async (i) => {
+    
     const dt = data.value[i]
+    if (!validate(dt.steps)) {
+        ElMessage.error("存在空步骤待填充！")
+        return;
+    }
     dt.isloading = true
 
     const files = filesMap.get(i)
@@ -47,7 +60,10 @@ const configChange = async (i) => {
     // collect all field to json
     for (const field in dt) {
         if (field == 'file_list') continue;
-        formData.append(field, dt[field]);
+        if (field == 'steps')
+            formData.append(field, JSON.stringify(dt[field]));
+        else 
+            formData.append(field, dt[field]);
     }
     // Determine to use UPDATE or ADD method by check it has ID attr or not
     if (dt.id) {
@@ -133,6 +149,7 @@ const dialogHandleConfirm = () => {
             "file_list": [],
             "step_by_step": 1,
             "system_prompt": "",
+            "steps": [],
             isloading: false, // used by html control
             deleteloading: false, // used by html control
         })
@@ -167,6 +184,7 @@ const init = async () => {
                 gpt: config.gpt,
                 file_list: file_list,
                 system_prompt: config.system_prompt.content,
+                steps: config.steps
             })
         }
         tags.value = Array(data.value.length).fill('ACTIVE')
@@ -201,9 +219,11 @@ init()
         </div>
         <el-dialog
         v-model="dialogVisible"
-        title="提示"
         width="500"
         >
+            <template #header>
+                添加配置
+            </template>
             <div style="display: flex; justify-content: center;">
                 <el-input
                 v-model="newTitle"

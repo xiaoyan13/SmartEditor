@@ -19,10 +19,14 @@ const commonConfigRef = ref()
 
 const articleTitle = ref(props.articleConfig.article_prompt.title)
 const configPromptStr = ref(props.articleConfig.article_prompt.content)
+const stepPromptStr = ref(props.articleConfig.steps[0].prompt)
 const searchHasRan = ref(false) // control the <TaskStatus> show or not
+const searchViewPrinted = ref(false) // <TaskStatus> done, all searchs' results have been gained.
 const taskId = ref()
 const taskResult = ref()
 const taskDone = ref(false) // control the <next-step> show or not
+const canRestartTask = ref(false) // re-generate button
+const controller = ref(null); // AbortController
 
 const startComprehendRequest = async () => {
     const config = props.articleConfig;
@@ -54,10 +58,17 @@ const startComprehendRequest = async () => {
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
     });
     if (taskResp.code == 200) {
-        ElMessage.success('搜索开始运行');
+        ElMessage.success('任务开始运行');
         // update to new task id
         taskId.value = taskResp["task_id"];
-        searchHasRan.value = true;
+        searchHasRan.value = commonConfigRef.value.search_needed || commonConfigRef.value.local_RAG_search_needed || commonConfigRef.value.network_RAG_search_needed
+        if (searchHasRan.value == false) {
+            // 如果不需要搜索，则直接开始生成
+            startComprehendGenerate()
+        }else {
+            // 否则，等到搜索组件渲染完毕（这意味着所有搜索已经完成），再开始生成
+            watch(searchViewPrinted, () => startComprehendGenerate(), { once: true });
+        }
         emit('updateNowTasks')
     }else {
         ElMessage.error(taskResp.message)
@@ -65,10 +76,7 @@ const startComprehendRequest = async () => {
 }
 
 const startComprehendGenerate = async () => {
-    if (taskResult.value) {
-        // if generation has done, return directly
-        return;
-    }
+    canRestartTask.value = true
 
     try {
         const response = await fetch(`/api/article_generate/task/result_gen/${taskId.value}/comprehend_task`, {
@@ -98,17 +106,64 @@ const startComprehendGenerate = async () => {
     }
 }
 
+const reGenerate = async () => {
+    taskDone.value = false
+
+    // 如果已有 controller，先取消之前的请求
+    if (controller.value) {
+        controller.value.abort();
+        ElMessage.warning('上次请求已终止...');
+    }
+    // 创建新的 AbortController
+    controller.value = new AbortController();
+    const signal = controller.value.signal;
+    try {
+        const response = await fetch(`/api/article_generate/task/result_gen/${taskId.value}/comprehend_task/regenerate`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userStore.token}`
+            },
+            signal
+        });
+        if (!response.ok) {
+            throw new Error('网络响应不正常');
+        }
+        ElMessage.success('重新开始任务理解...')
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let receivedText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const decodedValue = decoder.decode(value, { stream: true });
+            receivedText += decodedValue;
+            taskResult.value = receivedText;
+        }
+        taskDone.value = true;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('请求已被取消');
+        } else {
+            ElMessage.error(error.message);
+        }
+    }finally {
+        controller.value = null;
+    }
+}
+
 // init this component's task view state
-const initTaskState = (task) => {
+const initTaskState = async (task) => {
     if (task) {
         taskId.value = task.id
-        searchHasRan.value = true
+        searchHasRan.value = task.search_needed || task.local_RAG_search_needed || task.network_RAG_search_needed
         if (task.generate_status == 'done') {
             taskDone.value = true;
         }
         // Result generating process
         // console.log(task)
         taskResult.value = task.task_result
+        canRestartTask.value = true
         // check status of the component
         commonConfigRef.value.gpt = task.model_used
         commonConfigRef.value.search_engine = task.search_engine_used
@@ -140,21 +195,33 @@ defineExpose({
                     v-model="configPromptStr"
                     :autosize="{ minRows: 4 }"
                     type="textarea"
-                    placeholder="🌱请输入用于生成文章的提示词。"
+                    placeholder="🌱请输入用于描述文章的提示词。"
                     maxlength="1000"
                     show-word-limit
                 />
             </div>
         </div>
         <CommonConfig ref="commonConfigRef" />
+        <div class="step-input">
+            <span style="margin-top: 6px; width: 100px;">{{ articleConfig.steps[0].title }}:</span>
+            <el-input
+                v-model="stepPromptStr"
+                :autosize="{ minRows: 10 }"
+                type="textarea"
+                :placeholder="`🌱请输入生成${ articleConfig.steps[0].title }的提示词。`"
+                maxlength="1000"
+                show-word-limit
+            />
+        </div>
         <div class="prompt-operate">
-            <el-button @click="startComprehendRequest" :disabled="searchHasRan">开始任务</el-button>
+            <el-button @click="startComprehendRequest" v-if="!canRestartTask">开始任务</el-button>
+            <el-button @click="reGenerate" v-else>重新开始任务</el-button>
         </div>
         <TaskStatus
         v-if="searchHasRan"
         :config="articleConfig" 
         :task-id="taskId"
-        @search-ended="startComprehendGenerate"
+        @search-ended="searchViewPrinted = true"
         />
         <CommonEditor v-if="taskResult" v-model="taskResult" />
         <div class="next-step" v-if="taskDone">
@@ -184,6 +251,13 @@ defineExpose({
             align-items: center;
             font-weight: bold;
         }
+    }
+
+    .step-input {
+        margin-bottom: 20px;
+        margin-right: 10px;
+        display: flex;
+        font-weight: bold;
     }
 
     .prompt-operate {
