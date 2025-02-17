@@ -39,9 +39,12 @@ const StartPolishRequest = async () => {
     const configId = config.id;
     const taskResp = await request.post(`/article_generate/create_generate_task/${configId}/4`, {
         "user_input": userInput.value,
+        "model_used": commonConfigRef.value.gpt,
+        "search_engine": commonConfigRef.value.search_engine,
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
+        "task_type": "expand_document",
     });
     if (taskResp.code == 200) {
         ElMessage.success('任务开始运行');
@@ -75,7 +78,7 @@ const startPolishGenerate = async () => {
         if (!response.ok) {
             throw new Error('网络响应不正常');
         }
-        ElMessage.success('开始文章扩写...')
+        ElMessage.success('开始任务...')
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
@@ -201,7 +204,7 @@ defineExpose({
 <template>
     <div class="container">
         <div class="user-input" v-if="userInput">
-            <h3>将扩写以下文章：</h3>
+            <template v-if="articleConfig.steps[currentStep].title == '扩写与优化'"><h3>将扩写以下文章：</h3></template>
             <CommonEditor v-model="userInput" />
         </div>
         <CommonConfig ref="commonConfigRef" />
@@ -218,12 +221,14 @@ defineExpose({
         </div>
         <div class="prompt-operate">
             <el-button @click="StartPolishRequest" v-if="!canRestartTask">
-                <i class="ri-sparkling-2-line" style="margin-right: 5px;" />
-                开始扩写文章
+                <template v-if="articleConfig.steps[currentStep].title == '扩写与优化'">
+                    <i class="ri-sparkling-2-line" style="margin-right: 5px;" />
+                </template>
+                {{articleConfig.steps[currentStep].title}}
             </el-button>
             <el-button @click="reGenerate" v-else>
                 <i class="ri-sparkling-2-line" style="margin-right: 5px;" />
-                重新开始扩写
+                重新开始任务
             </el-button>
         </div>
         <TaskStatus
@@ -232,7 +237,7 @@ defineExpose({
         :task-id="taskId"
         @search-ended="searchViewPrinted = true" />
         <CommonEditor v-if="taskResult" v-model="taskResult" />
-        <div class="change-view">
+        <div class="change-view" v-if="taskDone">
             <el-button @click="emit('preStep')">上一步</el-button>
             <el-button @click="towardsEditView">存为文档编辑</el-button>
             <el-button 

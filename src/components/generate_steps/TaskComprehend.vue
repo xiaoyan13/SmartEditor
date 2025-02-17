@@ -56,6 +56,7 @@ const startComprehendRequest = async () => {
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
+        "task_type": "comprehend_task",
     });
     if (taskResp.code == 200) {
         ElMessage.success('任务开始运行');
@@ -89,7 +90,7 @@ const startComprehendGenerate = async () => {
         if (!response.ok) {
             throw new Error('网络响应不正常');
         }
-        ElMessage.success('开始任务理解...')
+        ElMessage.success('开始生成结果...')
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
@@ -129,7 +130,7 @@ const reGenerate = async () => {
         if (!response.ok) {
             throw new Error('网络响应不正常');
         }
-        ElMessage.success('重新开始任务理解...')
+        ElMessage.success('重新开始任务...')
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';

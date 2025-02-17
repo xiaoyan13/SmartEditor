@@ -55,9 +55,12 @@ const step1StartOutlineRequest = async () => {
     const configId = config.id;
     const taskResp = await request.post(`/article_generate/create_generate_task/${configId}/1`, {
         "article_title": articleTitle.value,
+        "model_used": commonConfigRef.value.gpt,
+        "search_engine": commonConfigRef.value.search_engine,
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
+        "task_type": "geneate_outline",
     });
     if (taskResp.code == 200) {
         ElMessage.success('任务开始运行');
@@ -83,9 +86,12 @@ const step2StartOutlineRequest = async () => {
     const configId = config.id;
     const taskResp = await request.post(`/article_generate/create_generate_task/${configId}/2`, {
         "user_input": userInput.value + "\n\n" + stepPromptStr.value,
+        "model_used": commonConfigRef.value.gpt,
+        "search_engine": commonConfigRef.value.search_engine,
         "search_needed": commonConfigRef.value.search_needed,
         "network_RAG_search_needed": commonConfigRef.value.network_RAG_search_needed,
         "local_RAG_search_needed": commonConfigRef.value.local_RAG_search_needed,
+        "task_type": "geneate_outline",
     });
     if (taskResp.code == 200) {
         ElMessage.success('任务开始运行');
@@ -126,7 +132,7 @@ const startOutlineGenerate = async () => {
         if (!response.ok) {
             throw new Error('网络响应不正常');
         }
-        ElMessage.success('开始大纲生成...')
+        ElMessage.success('开始生成结果...')
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';
@@ -166,7 +172,7 @@ const reGenerate = async () => {
         if (!response.ok) {
             throw new Error('网络响应不正常');
         }
-        ElMessage.success('重新开始生成大纲...')
+        ElMessage.success('重新开始生成...')
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let receivedText = '';

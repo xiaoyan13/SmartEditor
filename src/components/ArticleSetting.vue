@@ -152,7 +152,7 @@ const dialogHandleConfirm = () => {
             "file_list": [],
             "step_by_step": 1,
             "system_prompt": "",
-            "steps": [],
+            "steps": [{step_order: 1, title: "文章生成", prompt: "请你根据以上信息生成一篇文章。"}],
             isloading: false, // used by html control
             deleteloading: false, // used by html control
         })
@@ -187,7 +187,7 @@ const init = async () => {
                 gpt: config.gpt,
                 file_list: file_list,
                 system_prompt: config.system_prompt.content,
-                steps: config.steps ?? []
+                steps: config.steps ?? [{step_order: 1, title: "文章生成", prompt: "请你根据以上信息生成一篇文章。"}]
             })
         }
         tags.value = Array(data.value.length).fill('ACTIVE')

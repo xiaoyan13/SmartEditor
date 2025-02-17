@@ -45,40 +45,37 @@ watch(() => {
 })
 
 const changeSteps = (new_val) => {
+    if (new_val > 4) {
+        props.item.steps.push({step_order: new_val});
+        return;
+    }
     switch (new_val) {
+        case 1:
+            props.item.steps = [
+                {step_order: 1, title: "文章生成", prompt: "请你根据以上信息生成一篇文章。"},
+            ]
+            break
         case 2:
-          props.item.steps = [
-            {step_order: 1, title: "大纲生成", prompt: "请你根据以上设定生成大纲。"},
-            {step_order: 2, title: "文章生成", prompt: "请你根据以下给定的大纲生成一篇文章。"},
-          ]
-          break
+            props.item.steps = [
+                {step_order: 1, title: "大纲生成", prompt: "请你根据以上设定生成大纲。"},
+                {step_order: 2, title: "文章生成", prompt: "请你根据以下给定的大纲生成一篇文章。"},
+            ]
+            break
         case 3:
-          props.item.steps = [
-            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
-            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
-            {step_order: 3, title: "文章生成", prompt: "请你根据以下给定的大纲生成一篇文章。"},
-          ]
-          break
+            props.item.steps = [
+                {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
+                {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
+                {step_order: 3, title: "文章生成", prompt: "请你根据以上给定的大纲生成一篇文章。"},
+            ]
+            break
         case 4:
-          props.item.steps = [
-            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
-            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
-            {step_order: 3, title: "文章生成", prompt: "请你根据以上设定与大纲生成一篇文章。"},
-            {step_order: 4, title: "扩写与优化", prompt: "请你扩写以下文章。"},
-          ]
-          break
-        default:
-          props.item.steps = [
-            {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
-            {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
-            {step_order: 3, title: "文章生成", prompt: "请你根据以上设定与大纲生成一篇文章。"},
-            {step_order: 4, title: "扩写与优化", prompt: "请你扩写以下文章"},
-         ]
-         let r = props.item.steps.length
-         while(r + 1 <= new_val) {
-            props.item.steps.push({step_order: r + 1});
-            r += 1;
-         }
+            props.item.steps = [
+                {step_order: 1, title: "任务理解", prompt: "请你根据以上设定进行任务理解。"},
+                {step_order: 2, title: "大纲生成", prompt: "请你根据以上设定与理解生成大纲。"},
+                {step_order: 3, title: "文章生成", prompt: "请你根据以上设定与大纲生成一篇文章。"},
+                {step_order: 4, title: "扩写与优化", prompt: "请你扩写这篇文章。"},
+            ]
+            break
     }
 }
 
@@ -120,7 +117,7 @@ const previewFile = (file) => {
         </template>
         <div class="select-container">
             设置分步生成：
-            <el-input-number v-model="item.step_by_step" @change="changeSteps" :min="1" :max="5" style="margin-right: 40px;" />
+            <el-input-number v-model="item.step_by_step" @change="changeSteps" :min="1" :max="8" style="margin-right: 40px;" />
             模型源：
             <el-select
                 v-model="item.gpt"

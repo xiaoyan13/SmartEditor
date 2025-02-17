@@ -6,6 +6,7 @@ import TaskComprehend from './generate_steps/TaskComprehend.vue';
 import OutlineGenerate from './generate_steps/OutlineGenerate.vue';
 import ArticleGenerate from './generate_steps/ArticleGenerate.vue';
 import ExpandAndPolish from './generate_steps/ExpandAndPolish.vue';
+import CommonStep from './generate_steps/CommonStep.vue';
 
 const config = ref()
 
@@ -44,6 +45,10 @@ const stepHTML = {
     "expand_and_polish": {
         icon: `<i class="ri-sparkling-2-line"></i>`,
         vueComponent: ExpandAndPolish,
+    },
+    "custom_operation": {
+        icon: `<i class="ri-git-branch-line"></i>`,
+        vueComponent: CommonStep,
     }
 }
 
@@ -100,9 +105,15 @@ const initTaskView = async () => {
     }else if (stepsNum == 2) {
         stepList.value = [stepHTML.outline, stepHTML.article_gen]
     }else if (stepsNum == 3) {
-        stepList.value = [stepHTML.task_comprehend, stepHTML.outline,stepHTML.article_gen]
+        stepList.value = [stepHTML.task_comprehend, stepHTML.outline, stepHTML.article_gen]
     }else if (stepsNum == 4) { 
-        stepList.value = [stepHTML.task_comprehend, stepHTML.outline,stepHTML.article_gen, stepHTML.expand_and_polish]
+        stepList.value = [stepHTML.task_comprehend, stepHTML.outline, stepHTML.article_gen, stepHTML.expand_and_polish]
+    }else {
+        // case for stepNum > 4
+        stepList.value = [stepHTML.task_comprehend, stepHTML.outline, stepHTML.article_gen, stepHTML.expand_and_polish]
+        for (let i = stepList.value.length + 1; i <= stepsNum; i++) {
+            stepList.value.push(stepHTML.custom_operation)
+        }
     }
     for (let i = 0; i < stepList.value.length; i++) {
         stepList.value[i].description = config.value.steps[i].title
@@ -171,6 +182,8 @@ const stepMargin = computed(() => {
         return '0 20%'
     if (stepList.value.length == 4)
         return '0 9%'
+    if (stepList.value.length > 4)
+        return '0 7%'
 })
 
 const stepComponentRef = ref()
