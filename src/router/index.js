@@ -22,6 +22,11 @@ const router = createRouter({
       component: RegisterView,
     },
     {
+      path: '/file_preview/:config_id/:file_name',
+      name: 'file_preview',
+      component: () => import('../components/FilePreview.vue')
+    },
+    {
       path: "/edit/:id",
       name: "edit",
       component: EditView,

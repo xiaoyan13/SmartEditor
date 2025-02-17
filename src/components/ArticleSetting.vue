@@ -43,7 +43,6 @@ const validate = (steps) => {
 }
 
 const configChange = async (i) => {
-    
     const dt = data.value[i]
     if (!validate(dt.steps)) {
         ElMessage.error("存在空步骤待填充！")
@@ -59,7 +58,11 @@ const configChange = async (i) => {
             formData.set(file.name, file)
     // collect all field to json
     for (const field in dt) {
-        if (field == 'file_list') continue;
+        if (field == 'file_list') {
+            // only remain 'name' attr
+            const serialized = JSON.stringify(dt[field], ["name"]);
+            formData.append(field, serialized)
+        }
         if (field == 'steps')
             formData.append(field, JSON.stringify(dt[field]));
         else 
@@ -184,7 +187,7 @@ const init = async () => {
                 gpt: config.gpt,
                 file_list: file_list,
                 system_prompt: config.system_prompt.content,
-                steps: config.steps
+                steps: config.steps ?? []
             })
         }
         tags.value = Array(data.value.length).fill('ACTIVE')

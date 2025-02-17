@@ -38,7 +38,7 @@ watch(() => {
         props.item.step_by_step,
         props.item.file_list.length,
         props.item.system_prompt,
-        props.item.steps.length
+        props.item.steps?.length
     ]
 }, () => {
     emit('changeTag', props.index, 'NEED_SAVE')
@@ -99,6 +99,12 @@ const changePrompt = () => {
 const system_prompt_open = ref(false)
 if (props.item.system_prompt) {
     system_prompt_open.value = true
+}
+
+const previewFile = (file) => {
+    const config_id = props.item.id
+    const file_name = file.name
+    window.open(`/file_preview/${config_id}/${file_name}`, '_blank')
 }
 
 </script>
@@ -195,10 +201,10 @@ if (props.item.system_prompt) {
         <template v-if="item.local_RAG_support">
             <el-upload
                 v-model:file-list="item.file_list"
-                action="/"
                 drag
                 multiple
                 :show-file-list="true"
+                :on-preview="previewFile"
                 :http-request="(options) => $emit('addToFormData', options, index)"
                 style="margin-top: 10px;"
                 >
