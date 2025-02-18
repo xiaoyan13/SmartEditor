@@ -114,8 +114,10 @@ import { Subscript } from '@tiptap/extension-subscript'
 import { Color } from '@tiptap/extension-color'
 import VueComponent from '../utils/Extension.js'
 import slash from '../utils/slash.js'
-import suggestion from '../utils/suggestion.js'
+import useSuggestion from '../utils/suggestion.js'
 import typographyTemps from '../utils/typographyTemps';
+
+const suggestion = useSuggestion()
 
 const lowlight = createLowlight()
 lowlight.register({ html, ts, css, js })
