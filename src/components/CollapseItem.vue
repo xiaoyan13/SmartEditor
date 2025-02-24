@@ -17,6 +17,7 @@ const GPToptions = [
     {value: 'chatgpt', label: 'chatGPT'}, 
     {value: 'erniebot', label: '文心一言'}, 
     {value: 'gemini', label: 'gemini'}, 
+    {value: 'claude', label: 'claude'}, 
 ]
 const engineOptions = [
     {value: 'baidu', label: '百度'}, 

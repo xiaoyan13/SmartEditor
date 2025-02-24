@@ -7,6 +7,7 @@ import TaskStatus from './TaskStatus.vue'
 import CommonEditor from '../CommonEditor.vue'
 import { useUserStore } from '@/stores/userStore'
 import router from "../../router/index.js";
+import { Collapse } from 'vue-collapsed'
 
 const userStore = useUserStore()
 
@@ -19,6 +20,7 @@ const props = defineProps({
 const emit = defineEmits(['preStep', 'nextStep', 'updateNowTasks'])
 
 const userInput = ref(props.preTaskResult)
+const showUserInput = ref(true)
 const stepPromptStr = ref(props.articleConfig.steps[props.currentStep].prompt)
 const canRestartTask = ref(false) // re-generate button
 const controller = ref(null); // AbortController
@@ -34,6 +36,8 @@ const taskResult = ref()
 const taskDone = ref(false) // control the <next-step> show or not
 
 const StartPolishRequest = async () => {
+    showUserInput.value = false;
+
     const config = props.articleConfig;
     // create new task and run
     const configId = config.id;
@@ -204,8 +208,13 @@ defineExpose({
 <template>
     <div class="container">
         <div class="user-input" v-if="userInput">
-            <template v-if="articleConfig.steps[currentStep].title == '扩写与优化'"><h3>将扩写以下文章：</h3></template>
-            <CommonEditor v-model="userInput" />
+            <div class="button">
+                <el-button @click="showUserInput = !showUserInput">{{ showUserInput ? '收起' : '展开' }}</el-button>
+            </div>
+            <Collapse :when="showUserInput">
+                <template v-if="articleConfig.steps[currentStep].title == '扩写与优化'"><h3>将扩写以下文章：</h3></template>
+                <CommonEditor v-model="userInput" />
+            </Collapse>
         </div>
         <CommonConfig ref="commonConfigRef" />
         <div class="step-input">
@@ -258,6 +267,10 @@ defineExpose({
     .user-input {
         margin-top: 30px;
         margin-right: 10px;
+        .button {
+            display: flex;
+            justify-content: end;
+        }
     }
 
     .inputs {

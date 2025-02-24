@@ -6,6 +6,7 @@ import { ElMessage } from 'element-plus'
 import TaskStatus from './TaskStatus.vue'
 import CommonEditor from '../CommonEditor.vue'
 import { useUserStore } from '@/stores/userStore'
+import { Collapse } from 'vue-collapsed'
 
 const userStore = useUserStore()
 
@@ -18,6 +19,7 @@ const props = defineProps({
 const emit = defineEmits(['preStep', 'nextStep', 'updateNowTasks'])
 
 const userInput = ref(props.preTaskResult)
+const showUserInput = ref(true)
 const stepPromptStr = ref(props.articleConfig.steps[props.currentStep].prompt)
 const canRestartTask = ref(false) // re-generate button
 const controller = ref(null); // AbortController
@@ -112,6 +114,7 @@ const step2StartOutlineRequest = async () => {
 }
 
 const startOutlineRequest = async () => {
+    showUserInput.value = false;
     if (props.currentStep == 0)
         await step1StartOutlineRequest();
     else
@@ -230,7 +233,12 @@ defineExpose({
 <template>
     <div class="container">
         <div class="user-input" v-if="userInput">
-            <CommonEditor v-model="userInput" />
+            <div class="button">
+                <el-button @click="showUserInput = !showUserInput">{{ showUserInput ? '收起' : '展开' }}</el-button>
+            </div>
+            <Collapse :when="showUserInput">
+                <CommonEditor v-model="userInput" />
+            </Collapse>
         </div>
         <div class="inputs" v-else>
             <div class="article-title-input">
@@ -289,6 +297,10 @@ defineExpose({
     .user-input {
         margin-top: 30px;
         margin-right: 10px;
+        .button {
+            display: flex;
+            justify-content: end;
+        }
     }
 
     .inputs {

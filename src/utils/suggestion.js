@@ -5,9 +5,15 @@ import CommandsList from '../components/CommandsList.vue';
 import { ElMessage, ElLoading } from "element-plus";
 import { useUserStore } from '@/stores/userStore';
 
+let suggestion = null
+
 export default function useSuggestion() {
+	if (suggestion) {
+		return suggestion
+	}
+
 	const userStore = useUserStore()
-	return  {
+	suggestion = {
 		items: ({ query }) => {
 			return [
 				{
@@ -227,4 +233,5 @@ export default function useSuggestion() {
 			}
 		},
 	}
+	return suggestion
 }
