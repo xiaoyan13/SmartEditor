@@ -114,7 +114,7 @@ onMounted(() => {
 		}
 
 		.content {
-			padding: 0.5rem;
+			padding: 2rem 0.5rem;
 			display: flex;
 			justify-content: center;
 		}
