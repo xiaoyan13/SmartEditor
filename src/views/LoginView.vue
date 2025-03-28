@@ -2,7 +2,7 @@
   <div class="container">
     <div class="login">
       <div class="image">
-        <img style="width: 10vw;" alt="logo" src="../assets/images/white_bg_logo.png" />
+        <div style="font-size: 9vw;">📔</div>
       </div>
       <p class="logo">iflower</p>
       <el-form class="form" :model="loginForm" :rules="rules" ref="loginFormRef">
